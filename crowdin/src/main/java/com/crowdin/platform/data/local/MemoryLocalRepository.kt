@@ -114,7 +114,8 @@ internal class MemoryLocalRepository : LocalRepository {
         }
 
     override fun getStringArray(key: String): Array<String>? {
-        stringsData[Locale.getDefault().getFormattedCode()]?.arrays?.forEach { array ->
+        val currentLanguage = getCurrentLanguageCode()
+        stringsData[currentLanguage]?.arrays?.forEach { array ->
             if (array.name == key) {
                 return array.values
             }
@@ -126,7 +127,8 @@ internal class MemoryLocalRepository : LocalRepository {
         resourceKey: String,
         quantityKey: String,
     ): String? {
-        stringsData[Locale.getDefault().getFormattedCode()]?.plurals?.forEach { pluralData ->
+        val currentLanguage = getCurrentLanguageCode()
+        stringsData[currentLanguage]?.plurals?.forEach { pluralData ->
             if (pluralData.name == resourceKey) {
                 return pluralData.quantity[quantityKey]
             }
@@ -134,10 +136,9 @@ internal class MemoryLocalRepository : LocalRepository {
         return null
     }
 
-    override fun isExist(language: String): Boolean = stringsData[language] != null
-
     override fun containsKey(key: String): Boolean {
-        stringsData[Locale.getDefault().getFormattedCode()]?.let { languageData ->
+        val currentLanguage = getCurrentLanguageCode()
+        stringsData[currentLanguage]?.let { languageData ->
             languageData.resources.forEach {
                 if (it.stringKey == key) {
                     return true
@@ -154,9 +155,14 @@ internal class MemoryLocalRepository : LocalRepository {
                 }
             }
         }
-
         return false
     }
+
+    private fun getCurrentLanguageCode(): String {
+        return Locale.getDefault().getFormattedCode()
+    }
+
+    override fun isExist(language: String): Boolean = stringsData[language] != null
 
     override fun getTextData(text: String): TextMetaData {
         val textMetaData = TextMetaData()
